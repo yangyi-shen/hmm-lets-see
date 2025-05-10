@@ -17,10 +17,26 @@ const schema = z.object({
 
 const structuredLlm = model.withStructuredOutput(schema);
 
-export async function fetchSearchKeywords(text: string) {
+export async function fetchSearchKeywords(text: string): Promise<string[]> {
 	const res = await structuredLlm.invoke(text);
 
     res.keywords = res.keywords.map((keyword: string) => encodeURIComponent(keyword));
 
 	return res.keywords;
+}
+
+export async function fetchCrossrefWorks(keywords: string[], rows: number): Promise<string[]> {
+    const url = `https://api.crossref.org/v1/works?query=${keywords.join("+")}&rows=${rows}&sort=relevance&order=desc&mailto=${process.env.CROSSREF_EMAIL}`;
+
+    const response = await fetch(url, {
+        method: "GET",
+        headers: {
+            "User-Agent": "Mozilla/5.0 (compatible; HmmLetsSee; +http://www.github.com/yangyi-shen/hmm-lets-see)",
+        }
+    })
+        .then(response => response.json())
+        .then(response => response.message.items)
+        .then((items:object[]) => items.map((item: any) => item.DOI))
+
+    return response;
 }
