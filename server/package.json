@@ -8,5 +8,10 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "devDependencies": {
+    "install": "^0.13.0",
+    "npm": "^11.3.0",
+    "typescript": "^5.8.3"
+  }
 }
