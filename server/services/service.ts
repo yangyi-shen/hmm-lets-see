@@ -1,17 +1,25 @@
-import { DeepInfraLLM } from "@langchain/community/llms/deepinfra";
+import { ChatGroq } from "@langchain/groq";
+import { z } from "zod";
 import "dotenv/config";
 
-export async function getAIResponse() {
-	const llm = new DeepInfraLLM({
-		temperature: 0.7,
-		model: "Qwen/Qwen3-235B-A22B",
-		apiKey: process.env.DEEPINFRA_API_KEY,
-		maxRetries: 5,
-	});
+const model = new ChatGroq({
+	model: "llama-3.3-70b-versatile",
+	temperature: 0.2,
+});
 
-	const res = await llm.invoke(
-		"What is the next step in the process of making a good game?"
-	);
+const joke = z.object({
+	setup: z.string().describe("The setup of the joke"),
+	punchline: z.string().describe("The punchline to the joke"),
+	rating: z
+		.number()
+		.optional()
+		.describe("How funny the joke is, from 1 to 10"),
+});
+
+const structuredLlm = model.withStructuredOutput(joke);
+
+export async function getAIResponse() {
+	const res = await structuredLlm.invoke("Tell me a joke about cats");
 
 	console.log(res);
 }
