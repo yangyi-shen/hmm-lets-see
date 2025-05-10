@@ -7,19 +7,20 @@ const model = new ChatGroq({
 	temperature: 0.2,
 });
 
-const joke = z.object({
-	setup: z.string().describe("The setup of the joke"),
-	punchline: z.string().describe("The punchline to the joke"),
-	rating: z
-		.number()
-		.optional()
-		.describe("How funny the joke is, from 1 to 10"),
+const schema = z.object({
+	keywords: z
+		.array(z.string())
+		.describe(
+			"The keywords that should be used to search for materials related to the question, each keyword should not be more than 2 words long."
+		),
 });
 
-const structuredLlm = model.withStructuredOutput(joke);
+const structuredLlm = model.withStructuredOutput(schema);
 
-export async function getAIResponse() {
-	const res = await structuredLlm.invoke("Tell me a joke about cats");
+export async function fetchSearchKeywords(text: string) {
+	const res = await structuredLlm.invoke(text);
 
-	console.log(res);
+    res.keywords = res.keywords.map((keyword: string) => encodeURIComponent(keyword));
+
+	return res.keywords;
 }
