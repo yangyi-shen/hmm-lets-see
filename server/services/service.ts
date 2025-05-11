@@ -9,18 +9,31 @@ const model = new ChatGroq({
 	temperature: 0.2,
 });
 
-const schema = z.object({
+const keywordsSchema = z.object({
 	keywords: z
 		.array(z.string())
 		.describe(
 			"The keywords that should be used to search for materials related to the question, each keyword should not be more than 2 words long."
 		),
 });
+const analysisSchema = z.object({
+	summary: z
+		.string()
+		.describe(
+			"A one-paragraph long summary of your answer, and how it derives from the provided material."
+		),
+	points: z
+		.array(z.string())
+		.describe(
+			"The main points of your thought process, each point should be one paragraph long, and explain not only your thoughts but which of the provided materials they were based on."
+		),
+});
 
-const structuredLlm = model.withStructuredOutput(schema);
+const keywordsLlm = model.withStructuredOutput(keywordsSchema);
+const analysisLlm = model.withStructuredOutput(analysisSchema);
 
 export async function fetchSearchKeywords(text: string): Promise<string[]> {
-	const res = await structuredLlm.invoke(text);
+	const res = await keywordsLlm.invoke(text);
 
 	res.keywords = res.keywords.map((keyword: string) =>
 		encodeURIComponent(keyword)
@@ -45,8 +58,8 @@ export async function fetchCrossrefWorks(
 			},
 		}
 	)
-		.then((response) => response.json())
-		.then((response) => response.message.items)
+		.then(response => response.json())
+		.then(response => response.message.items)
 		.then((items: object[]) => items.map((item: any) => item.URL));
 
 	const works = await Promise.all(
@@ -54,12 +67,28 @@ export async function fetchCrossrefWorks(
 			try {
 				const html = await axios.get(url).then((res) => res.data);
 				const $ = cheerio.load(html);
+				let content;
 
-				$("body script, body style").remove();
-				return $("body")
-					.text()
-					.trim()
-					.replace(/[\n\t]/g, "");
+				const main = $("main");
+				const mainDiv = $("div#main");
+				const article = $("article");
+				const body = $("body");
+
+				if (main.length > 0) {
+					content = main;
+				} else if (mainDiv.length > 0) {
+					content = mainDiv;
+				} else if (article.length > 0) {
+					content = article;
+				} else {
+					content = body;
+				}
+
+				content = content.remove("script").remove("style");
+				content = content.text().replace(/<[^>]*>/g, "").replace(/\s{4,}/g, "");
+				console.log(content);
+
+				return content;
 			} catch (error) {
 				return null;
 			}
@@ -72,4 +101,17 @@ export async function fetchCrossrefWorks(
 		.slice(0, rows);
 
 	return formattedWorks;
+}
+
+export async function fetchCrossrefWorksAnalysis(
+	question: string,
+	works: string[]
+) {
+	const res = await analysisLlm.invoke(`
+		I have a question: "${question}". I have the following materials related to the question: ${works.join(
+		"\n"
+	)}. Please analyze the material and come up with an answer to the question based on the material, and also tell me how you came up with the answer based on the material. 
+		`);
+
+	return res;
 }
