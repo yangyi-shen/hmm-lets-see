@@ -10,3 +10,4 @@ const works = await fetchCrossrefWorks(
 	5
 );
 console.log(works);
+console.log(works.reduce((acc, work) => work.length + acc, 0));
