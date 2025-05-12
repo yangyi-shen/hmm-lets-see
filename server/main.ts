@@ -1,20 +1,19 @@
-import {
-	fetchCrossrefWorks,
-	fetchCrossrefWorksAnalysis,
-	fetchSearchKeywords,
-} from "./services/service.js";
+import express from "express";
+import cors from "cors";
+import router from "./routes/route.js";
 
-const question =
-	"How, in quantitative terms, does drinking alchohol impair the mental development of a teenager?";
+const app = express();
+const PORT = 6900;
 
-const keywords = await fetchSearchKeywords(question);
-console.log("KEYWORDS: ", keywords);
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cors());
 
-const works = await fetchCrossrefWorks(keywords, 5);
-console.log(
-	"EST. TOKENS: ",
-	works.reduce((acc: number, work: string) => work.length + acc, 0) / 4
-);
+app.get("/", (req, res) => {
+	res.send(`Welcome to the backend for the "Hmm, let's see... 🤔" project!`);
+});
+app.use("/analysis", router);
 
-const analysis = await fetchCrossrefWorksAnalysis(question, works);
-console.log("ANALYSIS: ", analysis);
+app.listen(PORT, () => {
+	console.log(`Server is running on http://localhost:${PORT}`);
+});
