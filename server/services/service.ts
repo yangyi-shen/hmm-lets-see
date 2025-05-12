@@ -1,8 +1,7 @@
 import { ChatGroq } from "@langchain/groq";
 import { z } from "zod";
 import "dotenv/config";
-import axios from "axios";
-import * as cheerio from "cheerio";
+import { CheerioWebBaseLoader } from "@langchain/community/document_loaders/web/cheerio";
 
 const model = new ChatGroq({
 	model: "llama-3.3-70b-versatile",
@@ -67,33 +66,26 @@ export async function fetchCrossrefWorks(
 	const works = await Promise.all(
 		urls.map(async (url: string) => {
 			try {
-				const html = await axios.get(url).then((res) => res.data);
-				const $ = cheerio.load(html);
-				let content;
+				const loader = new CheerioWebBaseLoader(url, {
+					selector: "p",
+				});
 
-				const main = $("main");
-				const mainDiv = $("div#main");
-				const article = $("article");
-				const body = $("body");
+				const docs = await Promise.race([
+					loader.load(),
+					new Promise<null>((resolve) =>
+						setTimeout(() => resolve(null), 10000)
+					),
+				]);
 
-				if (main.length > 0) {
-					content = main;
-				} else if (mainDiv.length > 0) {
-					content = mainDiv;
-				} else if (article.length > 0) {
-					content = article;
+				if (!docs) {
+					return null;
 				} else {
-					content = body;
+					const formattedDocument = docs[0].pageContent
+						.replace(/[\n\t]/g, " ")
+						.replace(/\s{4,}/g, " ");
+
+					return formattedDocument;
 				}
-
-				content = content.remove("script").remove("style");
-				content = content
-					.text()
-					.replace(/<[^>]*>/g, "")
-					.replace(/\s{4,}/g, "");
-				console.log(content);
-
-				return content;
 			} catch (error) {
 				return null;
 			}
@@ -102,8 +94,10 @@ export async function fetchCrossrefWorks(
 
 	const formattedWorks = works
 		.filter((work: string | null) => work !== null)
-		.filter((work: string) => work.length > 0)
+		.filter((work: string) => work.length > 500)
 		.slice(0, rows);
+
+	console.log(formattedWorks);
 
 	return formattedWorks;
 }
