@@ -3,11 +3,7 @@ import { getAnalysis } from "../controllers/controller.js";
 
 const router = express.Router();
 
-router.get("/", (req, res) => {
-	res.send(`Welcome to the backend for the "Hmm, let's see... 🤔" project!`);
-});
-
-router.post("/analysis", async (req, res) => {
+router.post("/", async (req, res) => {
 	const { prompt } = req.body;
 	const response = await getAnalysis(prompt);
 
