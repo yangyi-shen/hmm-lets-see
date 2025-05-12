@@ -13,19 +13,19 @@ const keywordsSchema = z.object({
 	keywords: z
 		.array(z.string())
 		.describe(
-			"The keywords that should be used to search for materials related to the question, each keyword should not be more than 2 words long."
+			"The keywords that should be used to search for works related to the question, each keyword should not be more than 2 words long."
 		),
 });
 const analysisSchema = z.object({
 	summary: z
 		.string()
 		.describe(
-			"A one-paragraph long summary of your answer, and how it derives from the provided material."
+			"A one-paragraph long summary of your answer, and how it follows from the information given in the provided works."
 		),
 	points: z
 		.array(z.string())
 		.describe(
-			"The main points of your thought process, each point should be one paragraph long, and explain not only your thoughts but which of the provided materials they were based on."
+			"The main points of your thought process. Each point should be one paragraph long and contain one sentence summarizing the point, and one or more sentences explaining how the point follows from the information given in the provided works."
 		),
 });
 
@@ -58,9 +58,11 @@ export async function fetchCrossrefWorks(
 			},
 		}
 	)
-		.then(response => response.json())
-		.then(response => response.message.items)
+		.then((response) => response.json())
+		.then((response) => response.message.items)
 		.then((items: object[]) => items.map((item: any) => item.URL));
+
+	console.log("URLS: ", urls);
 
 	const works = await Promise.all(
 		urls.map(async (url: string) => {
@@ -85,7 +87,10 @@ export async function fetchCrossrefWorks(
 				}
 
 				content = content.remove("script").remove("style");
-				content = content.text().replace(/<[^>]*>/g, "").replace(/\s{4,}/g, "");
+				content = content
+					.text()
+					.replace(/<[^>]*>/g, "")
+					.replace(/\s{4,}/g, "");
 				console.log(content);
 
 				return content;
@@ -108,10 +113,9 @@ export async function fetchCrossrefWorksAnalysis(
 	works: string[]
 ) {
 	const res = await analysisLlm.invoke(`
-		I have a question: "${question}". I have the following materials related to the question: ${works.join(
+		I have a question: "${question}". Please analyze the following academic works (which are in the form of a single string) and come up with an answer to the question based on the data and professional opinions given in them: ${works.join(
 		"\n"
-	)}. Please analyze the material and come up with an answer to the question based on the material, and also tell me how you came up with the answer based on the material. 
-		`);
+	)}.`);
 
 	return res;
 }
