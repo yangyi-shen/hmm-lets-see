@@ -12,19 +12,19 @@ const keywordsSchema = z.object({
 	keywords: z
 		.array(z.string())
 		.describe(
-			"The keywords that should be used to search for works related to the question, each keyword should not be more than 2 words long."
+			"The keywords that should be used to search for academic materials that would help answer the question. Each keyword should not be more than 2 words long."
 		),
 });
 const analysisSchema = z.object({
 	summary: z
 		.string()
 		.describe(
-			"A one-paragraph long summary of your answer, and how it follows from the information given in the provided works."
+			"A paragraph which states your answer to the question, and then explains how it follows from the information given in the provided materials."
 		),
 	points: z
 		.array(z.string())
 		.describe(
-			"The main points of your thought process. Each point should be one paragraph long and contain one sentence summarizing the point, and one or more sentences explaining how the point follows from the information given in the provided works."
+			"A series of paragraphs describing steps of your thought process. Each paragraph should contain one sentence summarizing the main logical progression of the step, and one or more sentences explaining how the point follows from the information given in the provided materials. "
 		),
 });
 
@@ -97,8 +97,6 @@ export async function fetchCrossrefWorks(
 		.filter((work: string) => work.length > 500)
 		.slice(0, rows);
 
-	console.log(formattedWorks);
-
 	return formattedWorks;
 }
 
@@ -107,7 +105,7 @@ export async function fetchCrossrefWorksAnalysis(
 	works: string[]
 ) {
 	const res = await analysisLlm.invoke(`
-		I have a question: "${question}". Please analyze the following academic works (which are in the form of a single string) and come up with an answer to the question based on the data and professional opinions given in them: ${works.join(
+		I have a question: "${question}". Please analyze the following academic materials (which are in the form of a single string) and come up with an answer to the question based on the data and professional opinions given in them: ${works.join(
 		"\n"
 	)}.`);
 
