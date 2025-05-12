@@ -59,14 +59,14 @@ async function fetchAnalysis() {
     <section class="min-h-60">
       <p v-if="!answer">AI response will go here...</p>
       <p v-else-if="loading">AI response is loading...</p>
-      <p v-else>
+      <div v-else>
         <p>SUMMARY</p>
         <p>{{ answer.summary }}</p>
         <p>POINTS</p>
         <p v-for="(point, index) in answer.points" :key="index">
           {{ index + 1 }}. {{ point }}
         </p>
-      </p>
+      </div>
     </section>
     <footer class="mt-8">
       <p>
