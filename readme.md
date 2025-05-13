@@ -1,6 +1,8 @@
 # hmm, let's see... 🤔
 
-This is going to be a website where you can type in a question, and an educated answer based on research papers from Crossref and data crunching using DeepInfra. I'm not too sure of the implementation details myself, so this readme will be updated as time goes on.
+A web interface which allows you to ask AI complex questions. The backend will retrieve relevant academic materials from Crossref, process them using AI and generate an answer for you.
+
+Note that this is not a very high-quality product. I mainly created this to introduce myself to the basics of LangChain. Cooler and actually usable projects, however, are forthcoming!
 
 ## resources
 
