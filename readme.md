@@ -11,7 +11,9 @@ Note that this is not a very high-quality product. I mainly created this to intr
 4. Run `npm install && npm run dev`
 5. Enter the "app" directory
 6. Run `npm install && npm run dev`
-7. Go to [localhost:5173](http://localhost:5137)
+7. Go to [localhost:5173](http://localhost:5137), where you will be presented with the UI below
+
+![Demo image](./demo.png)
 
 ## resources
 
