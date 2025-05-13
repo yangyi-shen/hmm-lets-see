@@ -5,3 +5,5 @@ This is going to be a website where you can type in a question, and an educated 
 ## resources
 
 - [Crossref API documentation](https://api.crossref.org/swagger-ui/index.html#/)
+- [LangChain JS documentation](https://js.langchain.com/docs/introduction/)
+- [Bricolage Grotesque font](https://fonts.google.com/specimen/Bricolage+Grotesque)
