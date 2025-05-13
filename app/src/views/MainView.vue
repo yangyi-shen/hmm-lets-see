@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import loadingImg from '@/assets/loading.png'
 
 interface Answer {
   summary: string
