@@ -69,7 +69,7 @@ async function fetchAnalysis() {
       </form>
     </section>
     <section class="min-h-60 border-1 border-slate-950 rounded-sm p-2">
-      <p v-if="!answer">AI response will go here...</p>
+      <p v-if="!answer || !loading">AI response will go here...</p>
       <p v-else-if="loading">AI response is loading...</p>
       <div v-else>
         <p class="mb-1 text-2xl font-semibold">Summary</p>
