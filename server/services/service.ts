@@ -48,7 +48,7 @@ export async function fetchCrossrefWorks(
 	const urls = await fetch(
 		`https://api.crossref.org/v1/works?query=${keywords.join("+")}&rows=${
 			rows * 5
-		}&sort=relevance&order=desc&mailto=${process.env.CROSSREF_EMAIL}`,
+		}&sort=relevance&order=desc&mailto=mrshenyangyi@gmail.com`,
 		{
 			method: "GET",
 			headers: {
